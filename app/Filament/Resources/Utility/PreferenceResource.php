@@ -22,6 +22,11 @@ class PreferenceResource extends Resource
 
     protected static ?int $navigationSort = 99;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('system_settings');
+    }
+
     public static function canCreate(): bool
     {
         return false; // Keys are pre-defined by the corporate CMS schema

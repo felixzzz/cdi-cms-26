@@ -20,6 +20,11 @@ class PressReleaseResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('press_releases');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -95,6 +100,13 @@ class PressReleaseResource extends Resource
                     ->label('Publication Status'),
             ])
             ->actions([
+                Tables\Actions\Action::make('download_en')
+                    ->label('PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (PressRelease $record) => $record->file_en ? (str_starts_with($record->file_en, 'http') ? $record->file_en : "/file-storage/{$record->file_en}") : null)
+                    ->openUrlInNewTab()
+                    ->visible(fn (PressRelease $record) => filled($record->file_en)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

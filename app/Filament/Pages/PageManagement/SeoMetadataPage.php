@@ -26,6 +26,11 @@ class SeoMetadataPage extends Page implements HasForms
 
     protected static ?int $navigationSort = 9;
 
+    public static function canAccess(): bool
+    {
+        return itcan('page_management');
+    }
+
     protected static string $view = 'filament.pages.page-management.seo-metadata-page';
 
     public ?array $data = [];

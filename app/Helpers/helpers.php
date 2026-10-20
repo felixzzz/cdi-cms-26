@@ -7,12 +7,19 @@ if (!function_exists('itcan')) {
     function itcan($action)
     {
         $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+        if ($user instanceof \App\Models\User) {
+            return $user->hasPermission($action);
+        }
         if ($user->role && $user->role->is_superadmin) {
             return true;
         }
 
-        $permission = $user->role->permissions;
-        return in_array($action, $permission);
+        $permissions = $user->role?->permissions ?? [];
+        $permissionArray = is_array($permissions) ? $permissions : (json_decode($permissions, true) ?: []);
+        return in_array($action, $permissionArray, true);
     }
 }
 

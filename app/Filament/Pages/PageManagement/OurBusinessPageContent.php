@@ -26,6 +26,11 @@ class OurBusinessPageContent extends Page implements HasForms
 
     protected static ?int $navigationSort = 3;
 
+    public static function canAccess(): bool
+    {
+        return itcan('page_management');
+    }
+
     protected static string $view = 'filament.pages.page-management.our-business-page-content';
 
     public ?array $data = [];

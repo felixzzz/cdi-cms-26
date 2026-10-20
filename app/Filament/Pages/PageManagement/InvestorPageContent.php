@@ -26,6 +26,11 @@ class InvestorPageContent extends Page implements HasForms
 
     protected static ?int $navigationSort = 5;
 
+    public static function canAccess(): bool
+    {
+        return itcan('page_management');
+    }
+
     protected static string $view = 'filament.pages.page-management.investor-page-content';
 
     public ?array $data = [];

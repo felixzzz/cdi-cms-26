@@ -19,6 +19,11 @@ class InvestorReportResource extends Resource
 
     protected static ?string $navigationGroup = 'Investor Relations';
 
+    public static function canViewAny(): bool
+    {
+        return itcan('investor_reports');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

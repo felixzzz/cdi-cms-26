@@ -26,6 +26,11 @@ class SustainabilityPageContent extends Page implements HasForms
 
     protected static ?int $navigationSort = 4;
 
+    public static function canAccess(): bool
+    {
+        return itcan('page_management');
+    }
+
     protected static string $view = 'filament.pages.page-management.sustainability-page-content';
 
     public ?array $data = [];

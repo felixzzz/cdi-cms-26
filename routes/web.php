@@ -63,8 +63,8 @@ Route::get('/disclaimer', fn () => redirect('/admin'))->name('disclaimer');
 Route::get('/switch-lang/{locale}', fn () => redirect('/admin'))->name('switch-lang');
 
 // File delivery routes for media and documents
-Route::get('/file-storage/{file?}', [FileStorageController::class, 'preview'])->name('preview.storage');
-Route::get('/file-download/{file?}', [FileStorageController::class, 'download'])->name('preview.download');
+Route::get('/file-storage/{file?}', [FileStorageController::class, 'preview'])->where('file', '.*')->name('preview.storage');
+Route::get('/file-download/{file?}', [FileStorageController::class, 'download'])->where('file', '.*')->name('preview.download');
 Route::get('/file/preview/{lang?}/{type?}/{key?}/{name?}', [FileStorageController::class, 'filePreview'])->name('file.preview');
 Route::get('/file/download/{lang?}/{type?}/{key?}/{name?}', [FileStorageController::class, 'fileDownload'])->name('file.download');
 

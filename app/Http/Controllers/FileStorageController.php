@@ -18,24 +18,34 @@ class FileStorageController extends Controller
     {
         if (!$file) return null;
         try {
-            $file = str_replace(['.webp', '.webm', '.mp4'], '', $file);
-            $file = Helper::shortDecrypt($file);
-            return StorageFile::preview($file);
-        } catch (\Exception $e) {
+            $cleanFile = str_replace(['.webp', '.webm', '.mp4'], '', $file);
+            $decrypted = Helper::shortDecrypt($cleanFile);
+            $target = ($decrypted && is_string($decrypted)) ? $decrypted : $file;
+            return StorageFile::preview($target);
+        } catch (\Throwable $e) {
+            try {
+                return StorageFile::preview($file);
+            } catch (\Throwable $inner) {
+                return null;
+            }
         }
-        return null;
     }
 
     public function download(Request $request, $file)
     {
         if (!$file) return null;
         try {
-            $file = str_replace(['.webp', '.webm', '.mp4'], '', $file);
-            $file = Helper::shortDecrypt($file);
-            return StorageFile::download($file);
-        } catch (\Exception $e) {
+            $cleanFile = str_replace(['.webp', '.webm', '.mp4'], '', $file);
+            $decrypted = Helper::shortDecrypt($cleanFile);
+            $target = ($decrypted && is_string($decrypted)) ? $decrypted : $file;
+            return StorageFile::download($target);
+        } catch (\Throwable $e) {
+            try {
+                return StorageFile::download($file);
+            } catch (\Throwable $inner) {
+                return null;
+            }
         }
-        return null;
     }
 
     public function filePreview($lang = 'default', $type = null, $key = null)

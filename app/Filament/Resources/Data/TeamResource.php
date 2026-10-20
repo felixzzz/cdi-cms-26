@@ -25,6 +25,11 @@ class TeamResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('corporate_data');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

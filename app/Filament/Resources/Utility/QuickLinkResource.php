@@ -21,6 +21,11 @@ class QuickLinkResource extends Resource
     protected static ?string $navigationLabel = 'Quick & Footer Links';
     protected static ?int $navigationSort = 7;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('page_management');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -19,9 +19,35 @@ class InboxResource extends Resource
 
     protected static ?string $navigationGroup = 'Inquiries & Submissions';
 
+    public static function canViewAny(): bool
+    {
+        return itcan('inbox_contact') || itcan('inbox_whistleblowing');
+    }
+
     public static function canCreate(): bool
     {
         return false; // Submissions come exclusively from the frontend forms
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin()) {
+            $canContact = $user->hasPermission('inbox_contact');
+            $canWhistle = $user->hasPermission('inbox_whistleblowing');
+
+            if ($canContact && ! $canWhistle) {
+                $query->where('type', '!=', TopicType::Whistleblowing->value);
+            } elseif (! $canContact && $canWhistle) {
+                $query->where('type', TopicType::Whistleblowing->value);
+            } elseif (! $canContact && ! $canWhistle) {
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        return $query;
     }
 
     public static function form(Form $form): Form

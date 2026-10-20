@@ -22,6 +22,11 @@ class OurBusinessResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('our_business');
+    }
+
     public static function canCreate(): bool
     {
         return false; // The 4 business units (energy, water, port_storage, logistic) are core pillars

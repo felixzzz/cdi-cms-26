@@ -15,6 +15,11 @@ class User extends Authenticatable implements FilamentUser
 
     protected $fillable = ['name', 'email', 'password', 'role_id', 'profile', 'status'];
 
+    protected $attributes = [
+        'profile' => '/assets/images/avatar.jpg',
+        'status' => 1,
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -31,10 +36,24 @@ class User extends Authenticatable implements FilamentUser
     }
 
     // Helper to get permissions
-    public function permissions()
+    public function permissions(): array
     {
         return $this->role && $this->role->permissions
-            ? (is_array($this->role->permissions) ? $this->role->permissions : json_decode($this->role->permissions, true))
+            ? (is_array($this->role->permissions) ? $this->role->permissions : (json_decode($this->role->permissions, true) ?: []))
             : [];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return (bool) ($this->role?->is_superadmin ?? false);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return in_array($permission, $this->permissions(), true);
     }
 }

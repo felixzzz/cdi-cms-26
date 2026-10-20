@@ -22,6 +22,11 @@ class ArticleResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function canViewAny(): bool
+    {
+        return itcan('articles');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -122,9 +127,11 @@ class ArticleResource extends Resource
                                     ->required(),
                                 Forms\Components\TagsInput::make('tags')
                                     ->label('Tags'),
-                                Forms\Components\TextInput::make('thumbnail')
-                                    ->label('Thumbnail URL / Path')
-                                    ->helperText('Relative storage path or full URL'),
+                                Forms\Components\FileUpload::make('thumbnail')
+                                    ->label('Thumbnail Image')
+                                    ->image()
+                                    ->directory('article')
+                                    ->helperText('Upload or replace image in storage/app/private/article'),
                             ]),
                     ])
                     ->columnSpan(['lg' => 1]),
@@ -136,16 +143,23 @@ class ArticleResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('thumbnail')
+                    ->label('Thumbnail')
+                    ->circular()
+                    ->defaultImageUrl(url('/assets/frontend/images/default-thumbnail.jpg')),
                 Tables\Columns\TextColumn::make('title_en')
                     ->label('Title')
                     ->searchable(['title_en', 'title_id'])
                     ->limit(40)
                     ->sortable(),
-                Tables\Columns\BadgeColumn::make('category')
-                    ->colors([
-                        'primary' => 'news',
-                        'warning' => 'blog',
-                    ]),
+                Tables\Columns\TextColumn::make('category')
+                    ->badge()
+                    ->color(fn ($state) => match ($state instanceof \App\Enums\ArticleCategory ? $state->value : (string) $state) {
+                        'news' => 'primary',
+                        'blog' => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => ucfirst($state instanceof \App\Enums\ArticleCategory ? $state->value : (string) $state)),
                 Tables\Columns\TextColumn::make('articleCategory.name_en')
                     ->label('Category')
                     ->sortable(),
@@ -167,6 +181,13 @@ class ArticleResource extends Resource
                     ->label('Published Status'),
             ])
             ->actions([
+                Tables\Actions\Action::make('view_live')
+                    ->label('View')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('gray')
+                    ->url(fn (Article $record) => env('FRONTEND_URL', 'http://localhost:3000') . "/en/media/" . ($record->category instanceof \App\Enums\ArticleCategory ? $record->category->value : $record->category) . "/{$record->slug}")
+                    ->openUrlInNewTab()
+                    ->visible(fn (Article $record) => (bool) $record->status && filled($record->slug)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

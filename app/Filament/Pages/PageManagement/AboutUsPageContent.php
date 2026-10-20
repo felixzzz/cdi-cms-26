@@ -26,6 +26,11 @@ class AboutUsPageContent extends Page implements HasForms
 
     protected static ?int $navigationSort = 2;
 
+    public static function canAccess(): bool
+    {
+        return itcan('page_management');
+    }
+
     protected static string $view = 'filament.pages.page-management.about-us-page-content';
 
     public ?array $data = [];
