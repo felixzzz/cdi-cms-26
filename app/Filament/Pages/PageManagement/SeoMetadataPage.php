@@ -156,7 +156,7 @@ class SeoMetadataPage extends Page implements HasForms
         $keys = PreferenceKey::getSeoMetaKeys();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/seo');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('SEO Metadata Updated')

@@ -140,12 +140,53 @@ class InvestorPageContent extends Page implements HasForms
                                 Forms\Components\TextInput::make('investor_publication_banner_title_id')->label('Banner Title (ID)'),
                                 Forms\Components\Textarea::make('investor_publication_banner_content_en')->label('Banner Subtitle (EN)')->rows(2),
                                 Forms\Components\Textarea::make('investor_publication_banner_content_id')->label('Banner Subtitle (ID)')->rows(2),
-                                Forms\Components\FileUpload::make('investor_publication_banner_file')->label('Banner Image')->image()->directory('page-management/investor')->columnSpanFull(),
+                                Forms\Components\FileUpload::make('investor_publication_banner_file')->label('Banner Image')->image()->directory('page-contents')->columnSpanFull(),
                             ])
                             ->columns(2),
                     ]),
 
-                // 5. Dedicated Feeds Reference
+                // 5. Interactive Tabular Data Editors
+                Forms\Components\Section::make('Component 5: Interactive Financial & Shareholder Tables (Data Schema)')
+                    ->description('Directly edit rows, headers, financial metrics, and dividend amounts displayed in frontend tables.')
+                    ->icon('heroicon-o-table-cells')
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        Forms\Components\Tabs::make('Investor Tables')
+                            ->tabs([
+                                Forms\Components\Tabs\Tab::make('Financial Highlights Table')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('investor_report_table_json')
+                                            ->label('Table Schema (JSON)')
+                                            ->rows(12)
+                                            ->helperText('Contains columns and row arrays for Net Revenues, Profit/Loss, Total Assets, EBITDA, and Ratios.'),
+                                    ]),
+                                Forms\Components\Tabs\Tab::make('Shareholders Structure Table')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('investor_share_shareholders_table_json')
+                                            ->label('Table Schema (JSON)')
+                                            ->rows(12)
+                                            ->helperText('Contains shareholder entities, total shares owned, and shareholding percentages.'),
+                                    ]),
+                                Forms\Components\Tabs\Tab::make('Dividend History Table')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('investor_share_dividend_table_json')
+                                            ->label('Table Schema (JSON)')
+                                            ->rows(12)
+                                            ->helperText('Contains financial year, dividend per share, total dividend amount, and payout date.'),
+                                    ]),
+                                Forms\Components\Tabs\Tab::make('Bonds & Sukuk Table')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('investor_share_bonds_table_json')
+                                            ->label('Table Schema (JSON)')
+                                            ->rows(12)
+                                            ->helperText('Contains bond names, total issuance, interest rates, and maturity dates.'),
+                                    ]),
+                            ])
+                            ->columnSpanFull(),
+                    ]),
+
+                // 6. Dedicated Feeds Reference
                 Forms\Components\Section::make('Dedicated Investor Resources')
                     ->description('Downloadable reports (Prospectus, Financial Statements, General Meeting of Shareholders) and Institutions are managed directly in their dedicated resources:')
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -186,6 +227,18 @@ class InvestorPageContent extends Page implements HasForms
             ->statePath('data');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view_live')
+                ->label('View Live Investor Relations')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en/investor/report')
+                ->openUrlInNewTab(),
+        ];
+    }
+
     protected function getFormActions(): array
     {
         return [
@@ -202,7 +255,7 @@ class InvestorPageContent extends Page implements HasForms
         $keys = PreferenceKey::getAllInvestorKey();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/investor');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('Investor Relations Content Updated')

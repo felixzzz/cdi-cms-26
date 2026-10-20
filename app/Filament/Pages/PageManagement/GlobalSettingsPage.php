@@ -133,6 +133,18 @@ class GlobalSettingsPage extends Page implements HasForms
             ->statePath('data');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view_live')
+                ->label('View Legal Page')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en/privacy-policy')
+                ->openUrlInNewTab(),
+        ];
+    }
+
     protected function getFormActions(): array
     {
         return [
@@ -149,7 +161,7 @@ class GlobalSettingsPage extends Page implements HasForms
         $keys = $this->getCombinedKeys();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/global');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('Global & Legal Settings Updated')

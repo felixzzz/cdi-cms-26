@@ -125,6 +125,18 @@ class OurBusinessPageContent extends Page implements HasForms
             ->statePath('data');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view_live')
+                ->label('View Live Our Business')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en/our-business')
+                ->openUrlInNewTab(),
+        ];
+    }
+
     protected function getFormActions(): array
     {
         return [
@@ -141,7 +153,7 @@ class OurBusinessPageContent extends Page implements HasForms
         $keys = PreferenceKey::getAllOurBusinessKey();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/our-business');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('Our Business Content Updated')

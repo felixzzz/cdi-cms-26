@@ -195,6 +195,18 @@ class GovernancePageContent extends Page implements HasForms
             ->statePath('data');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view_live')
+                ->label('View Live Governance')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en/governance')
+                ->openUrlInNewTab(),
+        ];
+    }
+
     protected function getFormActions(): array
     {
         return [
@@ -211,7 +223,7 @@ class GovernancePageContent extends Page implements HasForms
         $keys = PreferenceKey::getAllGovernanceKey();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/governance');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('Governance Content Updated')

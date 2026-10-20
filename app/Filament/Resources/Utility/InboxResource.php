@@ -57,11 +57,18 @@ class InboxResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\BadgeColumn::make('type')
-                    ->colors([
-                        'primary' => fn ($state) => $state === TopicType::ContactUs || $state === TopicType::ContactUs->value,
-                        'danger' => fn ($state) => $state === TopicType::Whistleblowing || $state === TopicType::Whistleblowing->value,
-                    ]),
+                Tables\Columns\TextColumn::make('type')
+                    ->badge()
+                    ->color(fn ($state): string => match ($state instanceof TopicType ? $state->value : (string) $state) {
+                        TopicType::ContactUs->value, 'contact_us', 'contact-us' => 'primary',
+                        TopicType::Whistleblowing->value, 'whistleblowing' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state): string => match ($state instanceof TopicType ? $state->value : (string) $state) {
+                        TopicType::ContactUs->value, 'contact_us' => 'Contact Us',
+                        TopicType::Whistleblowing->value, 'whistleblowing' => 'Whistleblowing',
+                        default => ucfirst((string) $state),
+                    }),
                 Tables\Columns\TextColumn::make('first_name')
                     ->label('First Name')
                     ->searchable(),

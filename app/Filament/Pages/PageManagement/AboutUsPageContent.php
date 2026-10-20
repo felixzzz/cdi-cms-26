@@ -226,6 +226,18 @@ class AboutUsPageContent extends Page implements HasForms
             ->statePath('data');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('view_live')
+                ->label('View Live About Us')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en/about-us')
+                ->openUrlInNewTab(),
+        ];
+    }
+
     protected function getFormActions(): array
     {
         return [
@@ -242,7 +254,7 @@ class AboutUsPageContent extends Page implements HasForms
         $keys = $this->getCombinedKeys();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/about-us');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('About Us Content Updated')

@@ -36,6 +36,9 @@ class PreferencePageService
 
             if ($pref && $pref->type === PreferenceType::Table) {
                 $state["{$key}_content_table"] = $pref->content_table ?? [];
+                $state["{$key}_table_json"] = $pref->content_table ? json_encode($pref->content_table, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : '';
+            } else {
+                $state["{$key}_table_json"] = $pref?->content_table ? json_encode($pref->content_table, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : '';
             }
         }
 
@@ -45,7 +48,7 @@ class PreferencePageService
     /**
      * Save state array for the given preference keys.
      */
-    public static function saveKeys(array $state, array $keys, string $location = 'page-management'): void
+    public static function saveKeys(array $state, array $keys, string $location = 'page-contents'): void
     {
         $rawKeys = array_map(fn ($k) => $k instanceof PreferenceKey ? $k->value : (string) $k, $keys);
 
@@ -76,6 +79,13 @@ class PreferencePageService
                 $data['content_table'] = $state["{$key}_content_table"];
             }
 
+            if (!empty($state["{$key}_table_json"])) {
+                $decoded = json_decode($state["{$key}_table_json"], true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $data['content_table'] = $decoded;
+                }
+            }
+
             // Clean nulls but keep empty strings for titles/contents if user cleared them
             $data = array_filter($data, fn ($val, $k) => !is_null($val) || in_array($k, ['title_en', 'title_id', 'content_en', 'content_id']), ARRAY_FILTER_USE_BOTH);
 
@@ -90,5 +100,38 @@ class PreferencePageService
 
         // Trigger frontend ISR revalidation
         RevalidationService::revalidateAll();
+    }
+
+    /**
+     * Create a reactive preview field for currently active assets in the database.
+     */
+    public static function makeFilePreviewField(string $key, string $label = 'Current Live Asset'): \Filament\Forms\Components\Placeholder
+    {
+        return \Filament\Forms\Components\Placeholder::make("{$key}_preview")
+            ->label($label)
+            ->content(function ($get) use ($key) {
+                $file = $get("{$key}_current_file");
+                if (!$file) {
+                    return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-400 italic">No asset currently set in database</span>');
+                }
+                $isImage = preg_match('/\.(webp|png|jpg|jpeg|svg|gif)$/i', (string) $file);
+                if ($isImage) {
+                    return new \Illuminate\Support\HtmlString('
+                        <div class="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <img src="' . e($file) . '" alt="Preview" class="h-12 w-20 object-cover rounded border border-gray-300 dark:border-gray-600 shadow-sm" onerror="this.style.display=\'none\'">
+                            <div class="text-xs">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Live active asset</span><br>
+                                <a href="' . e($file) . '" target="_blank" class="text-primary-600 hover:underline inline-flex items-center gap-1 font-semibold">Open full size &rarr;</a>
+                            </div>
+                        </div>
+                    ');
+                }
+                return new \Illuminate\Support\HtmlString('
+                    <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-xs">
+                        <span class="text-primary-600 font-semibold">📄 Active media file</span>
+                        <a href="' . e($file) . '" target="_blank" class="text-primary-600 hover:underline">Download/View &rarr;</a>
+                    </div>
+                ');
+            });
     }
 }

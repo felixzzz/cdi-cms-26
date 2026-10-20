@@ -72,11 +72,12 @@ class HomePageContent extends Page implements HasForms
                             ])
                             ->columns(2),
 
+                        PreferencePageService::makeFilePreviewField('home_banner', 'Currently Active Hero Media'),
                         Forms\Components\FileUpload::make('home_banner_file')
-                            ->label('Hero Video / Poster Media')
+                            ->label('Replace Hero Video / Poster Media')
                             ->maxSize(25600)
-                            ->directory('page-management/home')
-                            ->helperText(fn ($get) => $get('home_banner_current_file') ? 'Current media is configured. Upload new file to replace.' : 'Upload MP4/WebM video or high-res image')
+                            ->directory('page-contents')
+                            ->helperText('Upload MP4/WebM video or high-res image')
                             ->columnSpanFull(),
                     ]),
 
@@ -98,10 +99,11 @@ class HomePageContent extends Page implements HasForms
                         Forms\Components\RichEditor::make('home_about_section_content_id')
                             ->label('Narrative Body (🇮🇩 Bahasa Indonesia)')
                             ->columnSpanFull(),
+                        PreferencePageService::makeFilePreviewField('home_about_section', 'Currently Active About Background Image'),
                         Forms\Components\FileUpload::make('home_about_section_file')
-                            ->label('Background Section Image')
+                            ->label('Replace Background Section Image')
                             ->image()
-                            ->directory('page-management/home')
+                            ->directory('page-contents')
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
@@ -331,7 +333,14 @@ class HomePageContent extends Page implements HasForms
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('view_live')
+                ->label('View Live Homepage')
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->url(env('FRONTEND_URL', 'http://localhost:3000') . '/en')
+                ->openUrlInNewTab(),
+        ];
     }
 
     protected function getFormActions(): array
@@ -350,7 +359,7 @@ class HomePageContent extends Page implements HasForms
         $keys = PreferenceKey::getAllHomeKey();
         $state = $this->form->getState();
 
-        PreferencePageService::saveKeys($state, $keys, 'page-management/home');
+        PreferencePageService::saveKeys($state, $keys, 'page-contents');
 
         Notification::make()
             ->title('Home Page Content Updated')
