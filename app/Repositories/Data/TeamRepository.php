@@ -22,13 +22,14 @@ class TeamRepository
             $q->where("name", "LIKE", "%$search%");
             $q->orWhere("position", "LIKE", "%$search%");
         })
-        ->datatable($perPage, "created_at");
+        ->datatable($perPage, "sort", "asc");
     }
 
     public function get($type)
     {
         return Team::query()
         ->where("type", $type)
+        ->orderBy("sort", "asc")
         ->orderBy("created_at", "asc")
         ->get();
     }

@@ -25,6 +25,7 @@ class TeamRequest extends FormRequest
             'type' => 'required',
             'name' => 'required',
             'position' => 'required',
+            'sort' => 'nullable|integer',
             'image' => 'nullable|file|max:5120',
             'image_hero' => 'nullable|file|max:5120'
         ];

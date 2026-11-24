@@ -5,6 +5,7 @@ namespace App\Actions\Data;
 use App\Helpers\StorageFile;
 use App\Http\Requests\Data\TeamRequest;
 use App\Models\Data\Team;
+use Illuminate\Http\Request;
 
 class TeamAction
 {
@@ -19,8 +20,14 @@ class TeamAction
     public function store(TeamRequest $request)
     {
         $data = [
-            ...$request->only(['name', 'type', 'description_en', 'description_id', 'position']),
+            ...$request->only(['name', 'type', 'description_en', 'description_id', 'position', 'sort']),
         ];
+
+        if ($request->filled('sort')) {
+            $data['sort'] = (int) $request->input('sort');
+        } else {
+            $data['sort'] = 0;
+        }
 
         if ($request->hasFile('image')) {
             $data['image'] = StorageFile::upload($request->file('image'), 'teams');
@@ -45,8 +52,12 @@ class TeamAction
     public function update(TeamRequest $request, $ulid)
     {
         $data = [
-            ...$request->only(['name', 'type', 'description_en', 'description_id', 'position']),
+            ...$request->only(['name', 'type', 'description_en', 'description_id', 'position', 'sort']),
         ];
+
+        if ($request->filled('sort')) {
+            $data['sort'] = (int) $request->input('sort');
+        }
 
         if ($request->hasFile('image')) {
             $data['image'] = StorageFile::upload($request->file('image'), 'teams');
@@ -74,6 +85,15 @@ class TeamAction
         }
 
         return Team::where("ulid", $ulid)->update($data);
+    }
+
+    public function updateSort(Request $request)
+    {
+        $data = $request->input('order', []);
+
+        foreach ($data as $item) {
+            Team::where('id', $item['id'])->update(['sort' => $item['sort']]);
+        }
     }
 
     public function delete($ulid){

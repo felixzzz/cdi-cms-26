@@ -42,6 +42,9 @@ class TeamResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('position')
                     ->required(),
+                Forms\Components\TextInput::make('sort')
+                    ->numeric()
+                    ->default(0),
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->required(),
@@ -64,7 +67,12 @@ class TeamResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->reorderable('sort')
+            ->defaultSort('sort', 'asc')
             ->columns([
+                Tables\Columns\TextColumn::make('sort')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('ulid')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
